@@ -2,12 +2,19 @@ use rand::Rng;
 use std::collections::HashMap;
 use std::io;
 
+#[derive(Debug)]
 struct Todo {
     title: String,
     description: String,
     id: u32,
 }
+
 fn main() {
+    loop {
+        app();
+    }
+}
+fn app() {
     let mut _todos: HashMap<u32, Todo> = HashMap::new();
     println!("Welcome to our rust todo app \n");
     println!("1. Add new todo");
@@ -26,9 +33,9 @@ fn main() {
             } else if option == 1 {
                 add_todo(&mut _todos);
             } else if option == 2 {
-                edit_todo();
+                edit_todo(&mut _todos);
             } else if option == 3 {
-                delete_todo();
+                delete_todo(&mut _todos);
             } else {
                 display_todo(&mut _todos);
             }
@@ -38,7 +45,7 @@ fn main() {
 }
 
 fn display_todo(_todos: &mut HashMap<u32, Todo>) {
-    for (key, todo) in _todos.iter() {
+    for (_key, todo) in _todos.iter() {
         println!("Title: {}, Description: {}", todo.title, todo.description);
     }
 }
@@ -63,9 +70,53 @@ fn add_todo(_todos: &mut HashMap<u32, Todo>) {
 
     // insert todo to hashmap
     _todos.insert(new_todo.id.clone(), new_todo);
-    println!("Todos added successfully")
+    println!("Todos added successfully");
+    println!("{_todos:?}");
 }
 
-fn edit_todo() {}
+fn edit_todo(_todos: &mut HashMap<u32, Todo>) {
+    let mut id = String::new();
+    println!("Available todos: {_todos:?}");
+    println!("Enter the id of the todo you want to edit:");
+    io::stdin()
+        .read_line(&mut id)
+        .expect("Please enter a todo id");
 
-fn delete_todo() {}
+    let id = id.trim().parse::<u32>().unwrap();
+    let todo = _todos.get_mut(&id);
+    match todo {
+        Some(todo) => {
+            let mut title = String::new();
+            let mut description = String::new();
+            println!("Enter new title:");
+            io::stdin()
+                .read_line(&mut title)
+                .expect("Please enter a todo title");
+            println!("Enter new description:");
+            io::stdin()
+                .read_line(&mut description)
+                .expect("Please enter a todo description");
+
+            todo.title = title;
+            todo.description = description;
+            println!("Todo updated successfully");
+        }
+        None => println!("Todo not found"),
+    }
+}
+
+fn delete_todo(_todos: &mut HashMap<u32, Todo>) {
+    let mut id = String::new();
+    println!("Available todos: {_todos:?}");
+    println!("Enter the id of the todo you want to delete:");
+    io::stdin()
+        .read_line(&mut id)
+        .expect("Please enter a todo id");
+
+    let id = id.trim().parse::<u32>().unwrap();
+    let todo = _todos.remove(&id);
+    match todo {
+        Some(_todo) => println!("Todo deleted successfully"),
+        None => println!("Todo not found"),
+    }
+}
